@@ -12,8 +12,9 @@ export default function PianoKey({ keyData, totalWhite, onClick }) {
   return (
     <div
       onClick={handleClick}
-      className="relative cursor-pointer select-none"
       style={{
+        position: "relative",
+        zIndex: 1,
         width: `${100 / totalWhite}%`,
         height: "100%",
         background: "linear-gradient(to bottom, #f5f0e8, #e8e0d0)",
@@ -27,6 +28,9 @@ export default function PianoKey({ keyData, totalWhite, onClick }) {
         paddingBottom: "12px",
         transition: "background 0.1s",
         opacity: isActive ? 1 : 0.75,
+        cursor: "pointer",
+        userSelect: "none",
+        flexShrink: 0,
       }}
       onMouseDown={e => e.currentTarget.style.background = "linear-gradient(to bottom, #e0d8c8, #d5cdc0)"}
       onMouseUp={e => e.currentTarget.style.background = "linear-gradient(to bottom, #f5f0e8, #e8e0d0)"}

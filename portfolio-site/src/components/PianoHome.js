@@ -64,7 +64,7 @@ export default function PianoHome() {
         border: "1px solid rgba(255,255,255,0.05)",
         borderTop: "none",
       }}>
-        <div style={{ display: "flex", height: "100%", gap: "2px", position: "relative" }}>
+        <div style={{ display: "flex", height: "100%", position: "relative" }}>
           {whiteKeys.map((key) => (
             <PianoKey key={key.note} keyData={key} totalWhite={whiteKeys.length} onClick={navigate} />
           ))}
