@@ -37,11 +37,11 @@ export default function PianoKey({ keyData, totalWhite, onClick }) {
       onMouseUp={e => e.currentTarget.style.background = "linear-gradient(to bottom, #f5f0e8, #e8e0d0)"}
       onMouseLeave={e => e.currentTarget.style.background = "linear-gradient(to bottom, #f5f0e8, #e8e0d0)"}
     >
-      {isActive && (
-        <span style={{ fontSize: "10px", color: "#555", fontFamily: "serif", letterSpacing: "0.05em" }}>
-          {keyData.label}
-        </span>
-      )}
+    {isActive && (
+      <span style={{ fontSize:"10px", color: "#555", fontFamily:"serif", letterSpacing:"0.05em"}}>
+        {keyData.label}
+      </span>
+    )}
     </div>
   );
 }
