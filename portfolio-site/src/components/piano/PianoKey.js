@@ -5,6 +5,7 @@ export default function PianoKey({ keyData, totalWhite, onClick }) {
   const isActive = !!keyData.href;
 
   const handleClick = () => {
+    console.log("key clicked", keyData.note);
     playNote(keyData.freq);
     if (keyData.href) onClick(keyData.href);
   };
