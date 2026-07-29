@@ -1,5 +1,4 @@
 "use client";
-import { useRef } from "react";
 import { whiteKeys, blackKeys, blackKeyPositions } from "./data/keys";
 import { playNote } from "./utils/playNote";
 
@@ -15,31 +14,30 @@ export default function PianoModel({ onKeyClick }) {
 
   return (
     <group>
-
-      {/* PIANO BODY - curved approximation using a scaled cylinder half */}
-      <mesh position={[0.5, 0.35, -1.2]} rotation={[0, 0.15, 0]} castShadow>
+      {/* PIANO BODY */}
+      <mesh position={[0.5, 0.35, -1.2]} rotation={[0, 0.15, 0]}>
         <boxGeometry args={[totalWidth + 1.5, 0.7, 2.6]} />
-        <meshStandardMaterial color="#1a0f0a" roughness={0.35} metalness={0.1} />
+        <meshStandardMaterial color="#5a3420" roughness={0.25} metalness={0.2} />
       </mesh>
 
-      {/* LID - angled */}
+      {/* LID */}
       <mesh position={[0.5, 0.85, -1.7]} rotation={[-0.35, 0.15, 0]}>
         <boxGeometry args={[totalWidth + 1.3, 0.06, 2.2]} />
-        <meshStandardMaterial color="#241511" roughness={0.2} metalness={0.15} />
+        <meshStandardMaterial color="#6b4028" roughness={0.15} metalness={0.25} />
       </mesh>
 
       {/* LEGS */}
       {[-totalWidth / 2 + 0.3, totalWidth / 2 - 0.3, -0.2].map((x, i) => (
         <mesh key={i} position={[x, -0.35, i === 2 ? -2.2 : -0.3]}>
           <cylinderGeometry args={[0.06, 0.08, 0.7, 8]} />
-          <meshStandardMaterial color="#150c08" roughness={0.4} />
+          <meshStandardMaterial color="#3d2317" roughness={0.3} metalness={0.15} />
         </mesh>
       ))}
 
       {/* KEYBED */}
       <mesh position={[0.5, 0.05, 0.2]}>
         <boxGeometry args={[totalWidth + 0.3, 0.1, 1.2]} />
-        <meshStandardMaterial color="#0d0805" roughness={0.5} />
+        <meshStandardMaterial color="#2a1810" roughness={0.4} />
       </mesh>
 
       {/* WHITE KEYS */}
@@ -55,10 +53,7 @@ export default function PianoModel({ onKeyClick }) {
             onPointerOut={() => { document.body.style.cursor = "default"; }}
           >
             <boxGeometry args={[whiteKeyWidth - 0.02, 0.08, 1.15]} />
-            <meshStandardMaterial
-              color={isActive ? "#fdfaf4" : "#e5ded0"}
-              roughness={0.3}
-            />
+            <meshStandardMaterial color={isActive ? "#fdfaf4" : "#e5ded0"} roughness={0.3} />
           </mesh>
         );
       })}
@@ -76,11 +71,10 @@ export default function PianoModel({ onKeyClick }) {
             onPointerOut={() => { document.body.style.cursor = "default"; }}
           >
             <boxGeometry args={[whiteKeyWidth * 0.55, 0.1, 0.65]} />
-            <meshStandardMaterial color="#0a0a0a" roughness={0.3} />
+            <meshStandardMaterial color="#1a1a1a" roughness={0.3} />
           </mesh>
         );
       })}
-
     </group>
   );
 }

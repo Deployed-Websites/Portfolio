@@ -19,17 +19,17 @@ export default function PianoHome() {
       fontFamily: "serif",
     }}>
 
-      <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", marginBottom: "-40px" }}>
         <MusicSheet />
         <div style={{
-          width: "420px",
-          height: "16px",
-          background: "linear-gradient(to bottom, #3a2a1a, #2a1a0a)",
-          borderRadius: "3px",
-          boxShadow: "0 6px 16px rgba(0,0,0,0.6)",
-          borderTop: "1px solid rgba(255,255,255,0.08)",
+            width: "420px",
+            height: "16px",
+            background: "linear-gradient(to bottom, #3a2a1a, #2a1a0a)",
+            borderRadius: "3px",
+            boxShadow: "0 6px 16px rgba(0,0,0,0.6)",
+            borderTop: "1px solid rgba(255,255,255,0.08)",
         }} />
-      </div>
+        </div>
 
       <Piano3D onKeyClick={navigate} />
 
