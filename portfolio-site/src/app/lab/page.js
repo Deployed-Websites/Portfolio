@@ -1,31 +1,5 @@
-import Link from "next/link";
-
-const concepts = [
-  {
-    slug: "gradient-descent",
-    title: "Gradient Descent",
-    teaser: "Why does the ball always find the valley? (Sometimes it doesn't.)",
-    status: "live",
-  },
-  {
-    slug: "stochastic-descent",
-    title: "Stochastic Gradient Descent",
-    teaser: "What happens when you only look at part of the map each step.",
-    status: "coming soon",
-  },
-  {
-    slug: "simulated-annealing",
-    title: "Simulated Annealing",
-    teaser: "Sometimes you have to move uphill to find the real valley.",
-    status: "coming soon",
-  },
-  {
-    slug: "hill-climbing",
-    title: "Hill Climbing",
-    teaser: "The greedy approach — and where it breaks.",
-    status: "coming soon",
-  },
-];
+import { concepts } from "./data/concepts";
+import ConceptCard from "./components/ConceptCard";
 
 export default function Lab() {
   return (
@@ -46,36 +20,9 @@ export default function Lab() {
 
         {/* CONCEPT CARDS */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {concepts.map((concept) => {
-            const isLive = concept.status === "live";
-            const CardContent = (
-              <div
-                className={`border rounded-lg p-6 h-full transition-colors ${
-                  isLive
-                    ? "border-gray-700 hover:border-white cursor-pointer"
-                    : "border-gray-900 opacity-50 cursor-default"
-                }`}
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <h2 className="text-lg font-semibold">{concept.title}</h2>
-                  {!isLive && (
-                    <span className="text-[10px] uppercase tracking-wider text-gray-600 border border-gray-800 rounded-full px-2 py-0.5">
-                      Soon
-                    </span>
-                  )}
-                </div>
-                <p className="text-sm text-gray-400 leading-relaxed">{concept.teaser}</p>
-              </div>
-            );
-
-            return isLive ? (
-              <Link key={concept.slug} href={`/lab/${concept.slug}`}>
-                {CardContent}
-              </Link>
-            ) : (
-              <div key={concept.slug}>{CardContent}</div>
-            );
-          })}
+          {concepts.map((concept) => (
+            <ConceptCard key={concept.slug} concept={concept} />
+          ))}
         </div>
 
       </div>
