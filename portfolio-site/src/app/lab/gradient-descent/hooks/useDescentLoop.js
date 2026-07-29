@@ -3,7 +3,7 @@ import { gradient } from "../lib/landscape";
 
 export function useDescentLoop({ running, ball, learningRate, momentum, setBall, setPath, setStepCount, stepCount, setRunning }) {
   const velocity = useRef([0, 0]);
-  const animRef = useRef(null);
+  const timeoutRef = useRef(null);
 
   useEffect(() => {
     if (!running || !ball) return;
@@ -26,15 +26,15 @@ export function useDescentLoop({ running, ball, learningRate, momentum, setBall,
       setStepCount((c) => c + 1);
 
       const gradMag = Math.sqrt(gx * gx + gy * gy);
-      if (gradMag > 0.01 && stepCount < 400) {
-        animRef.current = requestAnimationFrame(step);
+      if (gradMag > 0.01 && stepCount < 200) {
+        timeoutRef.current = setTimeout(step, 100); // pause between each visible step
       } else {
         setRunning(false);
       }
     };
 
-    animRef.current = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(animRef.current);
+    timeoutRef.current = setTimeout(step, 350);
+    return () => clearTimeout(timeoutRef.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [running]);
 
