@@ -35,16 +35,13 @@ export default function MusicSheet() {
 
       {/* CONTENT */}
       <div style={{ position: "relative", zIndex: 1, paddingLeft: "40px" }}>
-        <div style={{ fontSize: "11px", letterSpacing: "0.2em", color: "#888", marginBottom: "6px", textTransform: "uppercase" }}>
-          Op. I
-        </div>
         {/* YOUR NAME */}
         <h1 style={{ fontSize: "28px", fontWeight: "700", color: "#1a1a1a", marginBottom: "12px", lineHeight: 1.2 }}>
-          Your Name
+          Armaan Khaitan
         </h1>
         {/* YOUR DESCRIPTION */}
         <p style={{ fontSize: "14px", color: "#444", lineHeight: 1.8, maxWidth: "520px" }}>
-          Your description here.
+          I&apos;m a third year undergraduate university student studying B.Sc Artificial Intelligence and Computer Science at the University of Birmingham. I have a lot of interest in machine learning, deep learning and robotics and would like to apply what I&apos;ve learnt in university especially the AI specific modules as well as all the things I&apos;ve learnt myself in my free time to real projects.
         </p>
       </div>
     </div>
