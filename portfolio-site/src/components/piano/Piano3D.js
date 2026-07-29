@@ -30,6 +30,8 @@ export default function Piano3D({ onKeyClick }) {
 
         <OrbitControls
           enablePan={true}
+          screenSpacePanning={true}
+          panSpeed={0.8}
           minDistance={3.5}
           maxDistance={10}
           minPolarAngle={0.3}

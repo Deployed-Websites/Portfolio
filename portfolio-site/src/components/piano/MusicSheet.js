@@ -1,4 +1,5 @@
 export default function MusicSheet() {
+  const descriptionSize = 20
   return (
       <div style={{
         background: "linear-gradient(160deg, #fdfaf4 0%, #f5f0e4 100%)",
@@ -42,8 +43,14 @@ export default function MusicSheet() {
           Armaan Khaitan
         </h1>
         {/* YOUR DESCRIPTION */}
-        <p style={{ fontSize: "14px", color: "#444", lineHeight: 1.8, maxWidth: "520px" }}>
-          I&apos;m a third year undergraduate university student studying B.Sc Artificial Intelligence and Computer Science at the University of Birmingham. I have a lot of interest in machine learning, deep learning and robotics and would like to apply what I&apos;ve learnt in university especially the AI specific modules as well as all the things I&apos;ve learnt myself in my free time to real projects.
+        <p style={{ fontSize: descriptionSize+"px", color: "#444", lineHeight: 1.8, maxWidth: "520px" }}>
+          Student at university of birmingham
+        </p>
+        <p style={{ fontSize: descriptionSize+"px", color: "#444", lineHeight: 1.8, maxWidth: "520px" }}>
+          Final Year student
+        </p>
+        <p style={{ fontSize: descriptionSize+"px", color: "#444", lineHeight: 1.8, maxWidth: "520px" }}>
+          Doing a computer science course specialising in AI, NLP and computer vision
         </p>
       </div>
     </div>
