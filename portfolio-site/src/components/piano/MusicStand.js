@@ -1,19 +1,22 @@
 "use client";
 import { Html } from "@react-three/drei";
 import MusicSheet from "./MusicSheet";
+import { pianoConfig } from "./pianoConfig";
 
 export default function MusicStand() {
+  const { stand } = pianoConfig;
+
   return (
-    <group position={[0.5, 0.95, -0.4]} rotation={[-0.25, 0.15, 0]}>
+    <group position={stand.position} rotation={stand.rotation}>
       {/* LEDGE - sits on the piano, holds the sheet */}
-      <mesh position={[0, -0.05, 0.06]}>
-        <boxGeometry args={[1.4, 0.05, 0.12]} />
-        <meshStandardMaterial color="#2a1810" roughness={0.4} />
+      <mesh position={stand.ledgePosition}>
+        <boxGeometry args={stand.ledgeSize} />
+        <meshStandardMaterial color={stand.ledgeColor} roughness={0.4} />
       </mesh>
 
       {/* SHEET MUSIC - real HTML embedded in 3D space */}
-      <Html transform distanceFactor={1.4} position={[-0.2, 0.35, 0]} occlude>
-        <div style={{ width: "280px", pointerEvents: "none" }}>
+      <Html transform distanceFactor={stand.sheetDistanceFactor} position={stand.sheetPosition} occlude>
+        <div style={{ width: `${stand.sheetWidth}px`, pointerEvents: "none" }}>
           <MusicSheet />
         </div>
       </Html>

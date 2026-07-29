@@ -1,58 +1,69 @@
+import { pianoConfig } from "./pianoConfig";
+
 export default function MusicSheet() {
-  const descriptionSize = 20
+  const s = pianoConfig.sheet;
+
   return (
-      <div style={{
-        background: "linear-gradient(160deg, #fdfaf4 0%, #f5f0e4 100%)",
-        borderRadius: "3px 3px 0 0",
-        padding: "24px 24px 20px",
-        boxShadow: "0 -4px 24px rgba(0,0,0,0.6), 0 8px 16px rgba(0,0,0,0.3)",
-        position: "relative",
-        overflow: "hidden",
-        width: "400px",
-        minHeight: "280px",
-      }}>
+    <div style={{
+      background: s.background,
+      borderRadius: s.borderRadius,
+      padding: s.padding,
+      boxShadow: s.boxShadow,
+      position: "relative",
+      overflow: "hidden",
+      width: `${s.width}px`,
+      minHeight: `${s.minHeight}px`,
+    }}>
 
       {/* STAFF LINES */}
-      {[0, 1, 2, 3, 4].map(i => (
+      {Array.from({ length: s.staffLineCount }).map((_, i) => (
         <div key={i} style={{
           position: "absolute",
-          left: "48px",
-          right: "48px",
-          top: `${60 + i * 10}px`,
+          left: `${s.staffLineInset}px`,
+          right: `${s.staffLineInset}px`,
+          top: `${s.staffLineTopStart + i * s.staffLineTopStep}px`,
           height: "1px",
-          background: "rgba(0,0,0,0.08)",
+          background: s.staffLineColor,
         }} />
       ))}
 
       {/* TREBLE CLEF */}
       <div style={{
         position: "absolute",
-        left: "48px",
-        top: "32px",
-        fontSize: "72px",
-        color: "rgba(0,0,0,0.07)",
+        left: `${s.clefLeft}px`,
+        top: `${s.clefTop}px`,
+        fontSize: s.clefFontSize,
+        color: s.clefColor,
         lineHeight: 1,
         fontFamily: "serif",
         userSelect: "none",
       }}>𝄞</div>
 
       {/* CONTENT */}
-      <div style={{ position: "relative", zIndex: 1, paddingLeft: "40px" }}>
+      <div style={{ position: "relative", zIndex: 1, paddingLeft: `${s.contentPaddingLeft}px` }}>
         {/* YOUR NAME */}
-        <h1 style={{ fontSize: "28px", fontWeight: "700", color: "#1a1a1a", marginBottom: "12px", lineHeight: 1.2 }}>
+        <h1 style={{
+          fontSize: s.titleFontSize,
+          fontWeight: s.titleFontWeight,
+          color: s.titleColor,
+          marginBottom: s.titleMarginBottom,
+          lineHeight: 1.2,
+        }}>
           Armaan Khaitan
         </h1>
         {/* YOUR DESCRIPTION */}
-        <p style={{ fontSize: descriptionSize+"px", color: "#444", lineHeight: 1.8, maxWidth: "520px" }}>
+        <p style={{ fontSize: s.descriptionSize+"px", color: "#444", lineHeight: 1.8, maxWidth: "520px" }}>
           Student at university of birmingham
         </p>
-        <p style={{ fontSize: descriptionSize+"px", color: "#444", lineHeight: 1.8, maxWidth: "520px" }}>
+        <p style={{ fontSize: s.descriptionSize+"px", color: "#444", lineHeight: 1.8, maxWidth: "520px" }}>
           Final Year student
         </p>
-        <p style={{ fontSize: descriptionSize+"px", color: "#444", lineHeight: 1.8, maxWidth: "520px" }}>
+        <p style={{ fontSize: s.descriptionSize+"px", color: "#444", lineHeight: 1.8, maxWidth: "520px" }}>
           Doing a computer science course specialising in AI, NLP and computer vision
         </p>
       </div>
     </div>
   );
 }
+
+
