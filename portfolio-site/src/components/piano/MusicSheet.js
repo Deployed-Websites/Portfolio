@@ -1,13 +1,15 @@
 export default function MusicSheet() {
   return (
-    <div style={{
-      background: "linear-gradient(135deg, #fdfaf4 0%, #f5f0e4 100%)",
-      borderRadius: "4px 4px 0 0",
-      padding: "36px 48px 28px",
-      boxShadow: "0 -2px 20px rgba(0,0,0,0.5), 0 2px 4px rgba(0,0,0,0.3)",
-      position: "relative",
-      overflow: "hidden",
-    }}>
+      <div style={{
+        background: "linear-gradient(160deg, #fdfaf4 0%, #f5f0e4 100%)",
+        borderRadius: "3px 3px 0 0",
+        padding: "24px 24px 20px",
+        boxShadow: "0 -4px 24px rgba(0,0,0,0.6), 0 8px 16px rgba(0,0,0,0.3)",
+        position: "relative",
+        overflow: "hidden",
+        width: "400px",
+        minHeight: "280px",
+      }}>
 
       {/* STAFF LINES */}
       {[0, 1, 2, 3, 4].map(i => (

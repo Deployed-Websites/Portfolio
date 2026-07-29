@@ -12,8 +12,8 @@ export default function MusicStand() {
       </mesh>
 
       {/* SHEET MUSIC - real HTML embedded in 3D space */}
-      <Html transform distanceFactor={1.4} position={[0, 0.55, 0]} occlude>
-        <div style={{ width: "260px", pointerEvents: "none" }}>
+      <Html transform distanceFactor={1.4} position={[-0.2, 0.35, 0]} occlude>
+        <div style={{ width: "280px", pointerEvents: "none" }}>
           <MusicSheet />
         </div>
       </Html>

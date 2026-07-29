@@ -8,7 +8,7 @@ import MusicStand from "./MusicStand";
 export default function Piano3D({ onKeyClick }) {
   return (
     <div style={{
-      width: "100%",
+      width: "100vw",
       height: "100vh",
       position: "relative",
       background: "radial-gradient(ellipse at center 40%, rgba(80,50,30,0.15) 0%, transparent 65%)",
@@ -29,10 +29,11 @@ export default function Piano3D({ onKeyClick }) {
         </Suspense>
 
         <OrbitControls
-          enablePan={false}
+          enablePan={true}
           minDistance={3.5}
           maxDistance={10}
-          maxPolarAngle={Math.PI / 2.1}
+          minPolarAngle={0.3}
+          maxPolarAngle={Math.PI / 1.8}
         />
       </Canvas>
     </div>
