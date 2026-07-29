@@ -14,7 +14,7 @@ export default function Piano3D({ onKeyClick }) {
       background: "radial-gradient(ellipse at center 40%, rgba(80,50,30,0.15) 0%, transparent 65%)",
     }}>
       <Canvas
-        camera={{ position: [0, 4, 8], fov: 45 }}
+        camera={{ position: [0, 3, 5], fov: 45 }}
         dpr={[1, 1.5]}
         gl={{ antialias: true, powerPreference: "high-performance" }}
       >
@@ -30,8 +30,8 @@ export default function Piano3D({ onKeyClick }) {
 
         <OrbitControls
           enablePan={false}
-          minDistance={5}
-          maxDistance={12}
+          minDistance={3.5}
+          maxDistance={10}
           maxPolarAngle={Math.PI / 2.1}
         />
       </Canvas>

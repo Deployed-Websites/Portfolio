@@ -1,6 +1,8 @@
 "use client";
 import { whiteKeys, blackKeys, blackKeyPositions } from "./data/keys";
 import { playNote } from "./utils/playNote";
+import { Html } from "@react-three/drei";
+
 
 export default function PianoModel({ onKeyClick }) {
   const whiteKeyWidth = 0.42;
@@ -45,16 +47,32 @@ export default function PianoModel({ onKeyClick }) {
         const x = startX + i * whiteKeyWidth + whiteKeyWidth / 2;
         const isActive = !!key.href;
         return (
-          <mesh
-            key={key.note}
-            position={[x, 0.11, 0.6]}
-            onClick={(e) => { e.stopPropagation(); handleKeyClick(key); }}
-            onPointerOver={(e) => { e.stopPropagation(); document.body.style.cursor = "pointer"; }}
-            onPointerOut={() => { document.body.style.cursor = "default"; }}
-          >
-            <boxGeometry args={[whiteKeyWidth - 0.02, 0.08, 1.15]} />
-            <meshStandardMaterial color={isActive ? "#fdfaf4" : "#e5ded0"} roughness={0.3} />
-          </mesh>
+          <group key={key.note}>
+            <mesh
+              position={[x, 0.11, 0.6]}
+              onClick={(e) => { e.stopPropagation(); handleKeyClick(key); }}
+              onPointerOver={(e) => { e.stopPropagation(); document.body.style.cursor = "pointer"; }}
+              onPointerOut={() => { document.body.style.cursor = "default"; }}
+            >
+              <boxGeometry args={[whiteKeyWidth - 0.02, 0.08, 1.15]} />
+              <meshStandardMaterial color={isActive ? "#fdfaf4" : "#e5ded0"} roughness={0.3} />
+            </mesh>
+
+            {isActive && (
+              <Html position={[x, 0.16, 1.05]} center distanceFactor={8}>
+                <div style={{
+                  fontSize: "9px",
+                  color: "#555",
+                  fontFamily: "serif",
+                  letterSpacing: "0.03em",
+                  pointerEvents: "none",
+                  whiteSpace: "nowrap",
+                }}>
+                  {key.label}
+                </div>
+              </Html>
+            )}
+          </group>
         );
       })}
 
