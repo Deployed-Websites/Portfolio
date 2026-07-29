@@ -3,12 +3,13 @@ import MusicSheet from "./piano/MusicSheet";
 import PianoKey from "./piano/PianoKey";
 import BlackKey from "./piano/BlackKey";
 import { whiteKeys, blackKeys, blackKeyPositions } from "./piano/data/keys";
+import { useRouter } from "next/navigation";
 
-const navigate = (href) => { window.location.href = href; };
 
 export default function PianoHome() {
   const whiteWidth = 100 / whiteKeys.length;
-
+  const router = useRouter();
+  const navigate = (href) => router.push(href);
   return (
     <div style={{
       minHeight: "100vh",
