@@ -3,17 +3,18 @@ import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { Suspense } from "react";
 import PianoModel from "./PianoModel";
+import MusicStand from "./MusicStand";
 
 export default function Piano3D({ onKeyClick }) {
   return (
     <div style={{
       width: "100%",
-      height: "600px",
+      height: "100vh",
       position: "relative",
       background: "radial-gradient(ellipse at center 40%, rgba(80,50,30,0.15) 0%, transparent 65%)",
     }}>
       <Canvas
-        camera={{ position: [0, 4, 7], fov: 45 }}
+        camera={{ position: [0, 4, 8], fov: 45 }}
         dpr={[1, 1.5]}
         gl={{ antialias: true, powerPreference: "high-performance" }}
       >
@@ -24,6 +25,7 @@ export default function Piano3D({ onKeyClick }) {
 
         <Suspense fallback={null}>
           <PianoModel onKeyClick={onKeyClick} />
+          <MusicStand />
         </Suspense>
 
         <OrbitControls
