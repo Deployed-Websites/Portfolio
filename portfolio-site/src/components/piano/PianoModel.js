@@ -1,10 +1,10 @@
 "use client";
+import { useState } from "react";
 import { whiteKeys, blackKeys, blackKeyPositions } from "./data/keys";
 import { playNote } from "./utils/playNote";
 import { Html } from "@react-three/drei";
 
-
-export default function PianoModel({ onKeyClick }) {
+export default function PianoModel({ onKeyClick, onHoverChange }) {
   const whiteKeyWidth = 0.42;
   const totalWidth = whiteKeys.length * whiteKeyWidth;
   const startX = -totalWidth / 2;
@@ -14,8 +14,19 @@ export default function PianoModel({ onKeyClick }) {
     if (key.href) onKeyClick(key.href);
   };
 
+  const handlePointerOver = (e) => {
+    e.stopPropagation();
+    document.body.style.cursor = "pointer";
+    onHoverChange(true);
+  };
+
+  const handlePointerOut = () => {
+    document.body.style.cursor = "default";
+    onHoverChange(false);
+  };
+
   return (
-    <group>
+    <group onPointerOver={handlePointerOver} onPointerOut={handlePointerOut}>
       {/* PIANO BODY */}
       <mesh position={[0.5, 0.35, -1.2]} rotation={[0, 0.15, 0]}>
         <boxGeometry args={[totalWidth + 1.5, 0.7, 2.6]} />
@@ -51,8 +62,6 @@ export default function PianoModel({ onKeyClick }) {
             <mesh
               position={[x, 0.11, 0.6]}
               onClick={(e) => { e.stopPropagation(); handleKeyClick(key); }}
-              onPointerOver={(e) => { e.stopPropagation(); document.body.style.cursor = "pointer"; }}
-              onPointerOut={() => { document.body.style.cursor = "default"; }}
             >
               <boxGeometry args={[whiteKeyWidth - 0.02, 0.08, 1.15]} />
               <meshStandardMaterial color={isActive ? "#fdfaf4" : "#e5ded0"} roughness={0.3} />
@@ -60,14 +69,7 @@ export default function PianoModel({ onKeyClick }) {
 
             {isActive && (
               <Html position={[x, 0.16, 1.05]} center distanceFactor={8}>
-                <div style={{
-                  fontSize: "9px",
-                  color: "#555",
-                  fontFamily: "serif",
-                  letterSpacing: "0.03em",
-                  pointerEvents: "none",
-                  whiteSpace: "nowrap",
-                }}>
+                <div style={{ fontSize: "9px", color: "#555", fontFamily: "serif", letterSpacing: "0.03em", pointerEvents: "none", whiteSpace: "nowrap" }}>
                   {key.label}
                 </div>
               </Html>
@@ -85,8 +87,6 @@ export default function PianoModel({ onKeyClick }) {
             key={key.note}
             position={[x, 0.16, 0.25]}
             onClick={(e) => { e.stopPropagation(); playNote(key.freq); }}
-            onPointerOver={(e) => { e.stopPropagation(); document.body.style.cursor = "pointer"; }}
-            onPointerOut={() => { document.body.style.cursor = "default"; }}
           >
             <boxGeometry args={[whiteKeyWidth * 0.55, 0.1, 0.65]} />
             <meshStandardMaterial color="#1a1a1a" roughness={0.3} />
