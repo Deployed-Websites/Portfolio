@@ -4,18 +4,29 @@ gpush() {
   local target_dir
 
   format_path() {
-    echo "$1" | tr -d '"' | sed 's|\\|/|g' | sed 's|^\([A-Za-z]\):/|/\L\1/|'
+    printf '%s' "$1" | tr -d '"' | sed 's|\\|/|g' | sed 's|^\([A-Za-z]\):/|/\L\1/|'
   }
-
+  
+  resolve_to_git_root() {
+    local formatted
+    formatted=$(printf '%s' "$1" | tr -d '"' | sed 's|\\|/|g' | sed 's|^\([A-Za-z]\):/|/\L\1/|')
+    local root
+    root=$(git -C "$formatted" rev-parse --show-toplevel 2>/dev/null)
+    if [[ -z "$root" ]]; then
+      echo "$formatted"
+    else
+      echo "$root"
+    fi
+  }
   if [[ -n "$1" ]]; then
     local formatted
-    formatted=$(format_path "$1")
+    formatted=$(resolve_to_git_root "$1")
     echo ""
     echo "📁 New path: $formatted"
     read -p "Are you sure you want to use this path? (y/n): " confirm
     if [[ "$confirm" != "y" ]]; then
       read -rp "Enter new path: " raw
-      formatted=$(format_path "$raw")
+      formatted=$(resolve_to_git_root "$raw")
     fi
     echo "$formatted" > "$config_file"
     target_dir="$formatted"
@@ -27,15 +38,33 @@ gpush() {
     read -p "Continue? (y/n): " confirm
     if [[ "$confirm" != "y" ]]; then
       read -rp "Enter new path: " raw
-      target_dir=$(format_path "$raw")
+      target_dir=$(resolve_to_git_root "$raw")
       echo "$target_dir" > "$config_file"
     fi
 
   else
     echo "❌ No saved path."
     read -rp "Enter new path: " raw
-    target_dir=$(format_path "$raw")
+    target_dir=$(resolve_to_git_root "$raw")
     echo "$target_dir" > "$config_file"
+  fi
+
+  # Get the git root of the saved target path
+  local target_git_root
+  target_git_root=$(git -C "$target_dir" rev-parse --show-toplevel 2>/dev/null)
+
+  # Get the git root of the current directory
+  local current_git_root
+  current_git_root=$(git -C "$PWD" rev-parse --show-toplevel 2>/dev/null)
+
+  # Block if current directory belongs to a different git repo
+  if [[ -n "$current_git_root" && "$current_git_root" != "$target_git_root" ]]; then
+    echo ""
+    echo "⛔ You're inside a different git repo:"
+    echo "   Current: $current_git_root"
+    echo "   Saved:   $target_git_root"
+    echo "   Navigate out of this repo or update your saved path with: gpush /new/path"
+    return 1
   fi
 
   cd "$target_dir" || { echo "❌ Path not found: $target_dir"; return 1; }
