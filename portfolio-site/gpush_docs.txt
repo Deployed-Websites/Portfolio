@@ -1,0 +1,181 @@
+================================================================
+                        GPUSH DOCUMENTATION
+================================================================
+
+WHAT GPUSH DOES
+---------------
+gpush is a custom bash function that:
+- Remembers a target git repo path so you never have to cd to it manually
+- Can be run from anywhere in your file system
+- Auto-resolves any path you give it to the git root of that repo
+- Warns you if you're inside a different git repo than the saved one
+- Prompts you for a commit message then runs git add . && git commit && git push
+
+
+================================================================
+INSTALLING ON A NEW MACHINE (Windows Git Bash)
+================================================================
+
+1. Open bash profile in nano:
+   nano ~/.bash_profile
+
+2. Paste the full gpush() function from gpush.sh in the repo
+
+3. Save and exit nano (see Nano Commands section below)
+
+4. Reload the profile:
+   source ~/.bash_profile
+
+5. Make sure ~/.bash_profile sources ~/.bashrc so future edits
+   to ~/.bashrc also load. Add this line to ~/.bash_profile if
+   it isn't there:
+   source ~/.bashrc
+
+NOTE: On Windows Git Bash, ~/.bash_profile loads on every new
+terminal. ~/.bashrc alone will NOT load unless sourced by
+~/.bash_profile. Always put shell functions in ~/.bash_profile
+or make sure ~/.bash_profile sources ~/.bashrc.
+
+
+================================================================
+NANO COMMANDS
+================================================================
+
+OPENING A FILE
+--------------
+nano ~/.bash_profile         open bash profile
+nano ~/.bashrc               open bashrc
+nano ~/path/to/file.sh       open any file
+
+SAVING AND EXITING
+------------------
+Ctrl+O then Enter            save the file
+Ctrl+X                       exit nano
+Ctrl+O then Enter, Ctrl+X   save and exit in one flow
+
+NAVIGATING
+----------
+Ctrl+W                       search (type term, hit Enter to jump to it)
+Ctrl+W again                 find next occurrence
+Ctrl+_                       go to specific line number
+Ctrl+V                       page down
+Ctrl+Y                       page up
+Home / End                   start / end of line
+
+DELETING
+--------
+Ctrl+K                       cut (delete) entire current line
+Ctrl+K held/repeated         delete multiple lines one by one
+
+BULK DELETE
+-----------
+1. Navigate to the first line you want to delete
+2. Press Ctrl+^ (or Ctrl+Shift+6) to set a mark
+3. Use arrow keys or Ctrl+V to select down to the last line
+4. Press Ctrl+K to cut (delete) the entire selected block
+
+UNDO
+----
+Alt+U                        undo last action
+Alt+E                        redo
+
+
+================================================================
+COPYING GPUSH TO THE REPO .SH FILE
+================================================================
+
+After updating ~/.bash_profile, overwrite the saved script:
+
+   cp ~/.bash_profile ~/Downloads/Portfolio/portfolio-site/gpush.sh
+
+Then commit it:
+
+   cd ~/Downloads/Portfolio/portfolio-site
+   git add gpush.sh
+   git commit -m "update gpush script"
+   git push
+
+NOTE: This copies your entire bash_profile into gpush.sh.
+If you have other stuff in bash_profile besides gpush, manually
+trim gpush.sh down to just the gpush() function afterwards
+using nano (bulk delete everything else).
+
+
+================================================================
+GPUSH USAGE
+================================================================
+
+FIRST TIME (no saved path)
+---------------------------
+$ gpush
+❌ No saved path.
+Enter new path: <paste path here, no quotes>
+
+USING SAVED PATH
+----------------
+$ gpush
+📁 Using saved path: /c/Users/khait/Downloads/Portfolio/portfolio-site
+Continue? (y/n): y
+📁 /c/Users/khait/Downloads/Portfolio/portfolio-site
+Commit message: your message here
+
+SAYING NO TO SAVED PATH (redirects to enter new one)
+-----------------------------------------------------
+$ gpush
+📁 Using saved path: /c/Users/...
+Continue? (y/n): n
+Enter new path: <paste new path>
+(saves new path and continues with push)
+
+PASSING A PATH DIRECTLY (overrides saved)
+-----------------------------------------
+$ gpush C:\Users\khait\Downloads\Portfolio\portfolio-site
+📁 New path: /c/Users/khait/Downloads/Portfolio/portfolio-site
+Are you sure you want to use this path? (y/n): y
+(saves and continues)
+
+WINDOWS PATH FORMATTING
+------------------------
+- Paste raw Windows paths directly, no quotes needed
+- Backslashes are auto-converted to forward slashes
+- Drive letter is auto-converted: C:/ becomes /c/
+- Any subdirectory path is auto-resolved up to the git root
+  e.g. C:\project\src\app resolves to /c/project
+
+
+================================================================
+GIT ROOT SAFETY CHECK
+================================================================
+
+gpush checks the git root of your current terminal location
+against the git root of the saved path.
+
+If they are DIFFERENT repos, gpush blocks and shows:
+
+   ⛔ You're inside a different git repo:
+      Current: /c/path/to/current/repo
+      Saved:   /c/path/to/saved/repo
+      Navigate out of this repo or update your saved path with: gpush /new/path
+
+This means:
+- You can be ANYWHERE inside the correct repo (any subdirectory,
+  any depth, frontend, backend, packages, etc.) and it still works
+- You cannot accidentally commit to the wrong repo
+- git rev-parse --show-toplevel walks up the directory tree to
+  find the .git folder regardless of tech stack (Next.js, Django,
+  Flask, custom packages, etc.)
+
+
+================================================================
+CLEARING THE SAVED PATH
+================================================================
+
+To delete the saved path entirely:
+   rm ~/.gpush_path
+
+Next gpush run will ask you for a new path.
+
+
+================================================================
+END OF DOCUMENTATION
+================================================================
