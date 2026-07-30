@@ -1,8 +1,6 @@
 import Link from "next/link";
 
-export default function ConceptCard({ concept }) {
-  const isLive = concept.status === "live";
-
+export default function Card({ href, title, teaser, isLive }) {
   const cardContent = (
     <div
       className={`border rounded-lg p-6 h-full transition-colors ${
@@ -12,21 +10,16 @@ export default function ConceptCard({ concept }) {
       }`}
     >
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-lg font-semibold">{concept.title}</h2>
+        <h2 className="text-lg font-semibold">{title}</h2>
         {!isLive && (
           <span className="text-[10px] uppercase tracking-wider text-gray-600 border border-gray-800 rounded-full px-2 py-0.5">
             Soon
-        </span>
-
+          </span>
         )}
       </div>
-      <p className="text-sm text-gray-400 leading-relaxed">{concept.teaser}</p>
+      <p className="text-sm text-gray-400 leading-relaxed">{teaser}</p>
     </div>
   );
 
-  return isLive ? (
-    <Link href={`/lab/${concept.slug}`}>{cardContent}</Link>
-  ) : (
-    <div>{cardContent}</div>
-  );
+  return isLive ? <Link href={href}>{cardContent}</Link> : <div>{cardContent}</div>;
 }

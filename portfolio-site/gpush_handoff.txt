@@ -1,0 +1,427 @@
+================================================================
+                    GPUSH HANDOFF DOCUMENT
+              Full Development Session Summary
+================================================================
+
+OVERVIEW
+--------
+This document summarises the full development of gpush — a
+custom shell command built across two environments (Git Bash
+and Windows Command Prompt) that allows a developer to run
+a single command from anywhere in their file system to stage,
+commit, and push to a specific git repo without navigating to
+it first.
+
+
+================================================================
+THE PROBLEM BEING SOLVED
+================================================================
+
+The developer works across multiple simultaneous git repos
+(Next.js frontend, Django/Flask backends, custom Python
+packages, etc.) and found it frustrating that:
+
+1. Every git push required manually cd-ing to the repo first
+2. No matter how deep in a project they were, they had to
+   navigate to a specific place before running their custom
+   gpush function
+3. The original gpush was a simple function that only worked
+   if you were already in the right place:
+
+   Original gpush (what existed before this session):
+   gpush(){
+       echo "Enter commit message: "
+       read msg
+       git add .
+       git status
+       git commit -m "$msg"
+       git push
+       clear
+   }
+
+The goal was: type gpush from ANYWHERE and have it handle
+everything automatically.
+
+
+================================================================
+WHAT WAS BUILT
+================================================================
+
+TWO VERSIONS:
+
+1. gpush — Git Bash function (lives in ~/.bash_profile)
+2. gpush.bat — Windows CMD batch file (lives on system PATH)
+
+Both share the same core feature set:
+- Persistent saved path (stored in ~/.gpush_path)
+- Path auto-resolution to git root
+- Confirmation flow with inline recovery
+- Hard block if current directory is a different git repo
+- Commit message prompt then git add . && git commit && git push
+
+
+================================================================
+FEATURE BREAKDOWN
+================================================================
+
+1. PERSISTENT SAVED PATH
+   - On first run, or when no path is saved, prompts for one
+   - Saves it to ~/.gpush_path
+   - Every subsequent run loads and uses it automatically
+   - Never need to provide a path again until switching projects
+
+2. CONFIRMATION FLOW
+   - Shows the saved path and asks Continue? (y/n)
+   - y: proceeds to commit
+   - n: prompts for a new path inline, saves it, continues
+   - Saying no does NOT cancel — it redirects to update the path
+     and carries on with the push in the same run
+
+3. PATH AUTO-FORMATTING (Git Bash version only)
+   - Windows right-click Copy Path gives backslash paths
+   - format_path() converts \ to / and C:/ to /c/
+   - Uses printf not echo to prevent bash eating backslashes
+   - resolve_to_git_root() wraps format_path and then calls
+     git rev-parse --show-toplevel to walk up to the repo root
+
+4. GIT ROOT AUTO-RESOLUTION
+   - Any path entered — even a deep subdirectory — is auto
+     resolved to the git root before saving or using
+   - e.g. C:\project\src\app\hooks resolves to C:\project
+   - Means you can paste any path from anywhere in a project
+     and it always saves and cds to the right place
+
+5. REPO SAFETY CHECK (the most important feature)
+   - Before doing anything with git, checks:
+     a. git root of the saved target path
+     b. git root of the current terminal directory
+   - If they differ: HARD STOP, no inline recovery
+   - Shows exactly where you are vs where it expects you
+   - Forces you to physically move to the correct repo and
+     run gpush again, or explicitly pass a new path
+   - This is intentional — the friction is the point
+   - Committing files from one repo into another is
+     catastrophic (wrong files in wrong repo, potential
+     exposure of env files/keys, painful git history surgery
+     to unpick especially if already pushed to remote)
+
+6. DEPTH INDEPENDENCE
+   - git rev-parse --show-toplevel walks up the directory
+     tree to find .git regardless of how deep you are
+   - Works identically whether you are at the repo root or
+     8 levels deep in a Django package, Next.js route handler,
+     custom Python module, etc.
+   - Tech stack is completely irrelevant to the check
+
+7. PRINT CURRENT PATH BEFORE COMMIT
+   - After cd-ing to the target, prints the resolved path
+   - Visual confirmation of exactly where you are committing from
+
+
+================================================================
+PROBLEMS ENCOUNTERED AND FIXED DURING DEVELOPMENT
+================================================================
+
+1. cd IN A SCRIPT DOESNT AFFECT CURRENT TERMINAL
+   - A standalone .sh script runs in a subshell
+   - cd inside it only affects that subshell, not your terminal
+   - Fix: must be a shell FUNCTION (runs in current shell)
+   - Function lives in ~/.bash_profile or ~/.bashrc
+
+2. WINDOWS PATH FORMATTING (backslashes)
+   - echo in Git Bash interprets backslashes before sed sees them
+   - sed never received the \ characters to convert
+   - Fix: use printf '%s' instead of echo — passes raw input
+   - sed 's|\\|/|g' then correctly converts to forward slashes
+   - sed 's|^\([A-Za-z]\):/|/\L\1/|' converts C:/ to /c/
+   - Missing trailing / in the second sed pattern was eating
+     the slash between drive letter and first folder
+
+3. QUOTES BEING INCLUDED LITERALLY
+   - User pasted paths wrapped in quotes
+   - The quotes ended up in the stored path string
+   - Fix: tr -d '"' strips any quote characters from input
+
+4. read CONSUMING BACKSLASHES
+   - bash read interprets \ as escape character by default
+   - Backslashes in pasted paths were being eaten
+   - Fix: use read -r flag to treat backslashes as literals
+   - All three read -p instances updated to read -rp
+
+5. OLD GPUSH OVERRIDING NEW ONE
+   - Developer had original simple gpush in ~/.bash_profile
+   - New version was added to ~/.bashrc
+   - Git Bash loads ~/.bash_profile on startup, not ~/.bashrc
+     unless ~/.bash_profile explicitly sources ~/.bashrc
+   - ~/.bash_profile was loading first and winning
+   - Fix 1: delete old function from ~/.bash_profile
+   - Fix 2: add source ~/.bashrc to ~/.bash_profile so all
+     future edits to ~/.bashrc are picked up automatically
+   - Discovery method: grep -n "gpush" ~/.bashrc ~/.bash_profile
+     showed the duplicate across both files with line numbers
+
+6. SAVED PATH PERSISTING BAD VALUE
+   - After a failed formatting attempt, a broken path got saved
+   - Subsequent runs loaded and tried to use the broken path
+   - Fix: rm ~/.gpush_path to clear it and start fresh
+
+
+================================================================
+KEY TECHNICAL DECISIONS
+================================================================
+
+DECISION: Hard stop on wrong repo with no inline recovery
+REASON: Every other wrong input has a recovery path. Wrong repo
+is the one case where inline recovery would defeat the purpose.
+The developer needs to consciously acknowledge they are in the
+wrong project. Silent or easy recovery risks committing the
+wrong files to the wrong repo.
+
+DECISION: Save path to ~/.gpush_path file not a variable
+REASON: Shell variables don't persist between terminal sessions.
+A file persists forever until explicitly deleted.
+
+DECISION: resolve_to_git_root wraps format_path
+REASON: Separating concerns — format_path handles OS path
+conversion, resolve_to_git_root handles git structure. Either
+can be updated independently.
+
+DECISION: printf over echo for path input
+REASON: echo in bash has inconsistent backslash handling across
+systems and versions. printf '%s' is consistent and always
+passes input raw to the next command in the pipe.
+
+DECISION: ~/.bash_profile over ~/.bashrc as primary file
+REASON: On Windows Git Bash, ~/.bash_profile is what actually
+loads on terminal startup. ~/.bashrc does not load automatically
+unless sourced by ~/.bash_profile. Keeping the function in
+~/.bash_profile guarantees it is always available.
+
+
+================================================================
+FILE LOCATIONS AND STRUCTURE
+================================================================
+
+Git Bash version:
+  ~/.bash_profile          — contains the gpush() function
+  ~/.bash_profile          — also contains: source ~/.bashrc
+  ~/.gpush_path            — auto-created, stores saved path
+  <repo>/gpush.sh          — backup copy committed to repo
+
+Windows CMD version:
+  C:\Users\khait\scripts\gpush.bat   — the batch file
+  C:\Users\khait\scripts\            — folder on system PATH
+  ~/.gpush_path                      — shared with bash version
+  <repo>/gpush.bat                   — backup copy in repo
+
+Documentation files committed to repo:
+  gpush.sh                 — Git Bash function
+  gpush.bat                — Windows CMD batch file
+  gpush_docs.txt           — Git Bash version documentation
+  gpush_bat_docs.txt       — Windows CMD version documentation
+  gpush_handoff.txt        — this file
+
+
+================================================================
+HOW TO REINSTALL ON A NEW MACHINE
+================================================================
+
+GIT BASH:
+1. nano ~/.bash_profile
+2. Paste gpush() function from gpush.sh
+3. Add: source ~/.bashrc (if not already there)
+4. Ctrl+O, Enter, Ctrl+X
+5. source ~/.bash_profile
+6. rm ~/.gpush_path (if an old one exists from another machine)
+
+WINDOWS CMD:
+1. Create C:\Users\<you>\scripts\ folder
+2. Copy gpush.bat from repo into that folder
+3. Add folder to system PATH via Environment Variables
+4. Open a new Command Prompt
+5. Type gpush to test
+
+
+================================================================
+USEFUL DIAGNOSTIC COMMANDS
+================================================================
+
+Check which gpush is loaded and what version:
+  type gpush
+
+Check what path is currently saved:
+  cat ~/.gpush_path
+
+Find all places gpush is defined across config files:
+  grep -n "gpush" ~/.bashrc ~/.bash_profile 2>/dev/null
+
+Clear the saved path:
+  rm ~/.gpush_path          (bash)
+  del %USERPROFILE%\.gpush_path   (cmd)
+
+Reload bash config after edits:
+  source ~/.bash_profile
+
+
+================================================================
+THE FINAL BASH VERSION
+================================================================
+
+gpush() {
+  local config_file="$HOME/.gpush_path"
+  local target_dir
+
+  format_path() {
+    printf '%s' "$1" | tr -d '"' | sed 's|\\|/|g' | sed 's|^\([A-Za-z]\):/|/\L\1/|'
+  }
+
+  resolve_to_git_root() {
+    local formatted
+    formatted=$(printf '%s' "$1" | tr -d '"' | sed 's|\\|/|g' | sed 's|^\([A-Za-z]\):/|/\L\1/|')
+    local root
+    root=$(git -C "$formatted" rev-parse --show-toplevel 2>/dev/null)
+    if [[ -z "$root" ]]; then
+      echo "$formatted"
+    else
+      echo "$root"
+    fi
+  }
+
+  if [[ -n "$1" ]]; then
+    local formatted
+    formatted=$(resolve_to_git_root "$1")
+    echo ""
+    echo "📁 New path: $formatted"
+    read -p "Are you sure you want to use this path? (y/n): " confirm
+    if [[ "$confirm" != "y" ]]; then
+      read -rp "Enter new path: " raw
+      formatted=$(resolve_to_git_root "$raw")
+    fi
+    echo "$formatted" > "$config_file"
+    target_dir="$formatted"
+
+  elif [[ -f "$config_file" ]]; then
+    target_dir=$(cat "$config_file")
+    echo ""
+    echo "📁 Using saved path: $target_dir"
+    read -p "Continue? (y/n): " confirm
+    if [[ "$confirm" != "y" ]]; then
+      read -rp "Enter new path: " raw
+      target_dir=$(resolve_to_git_root "$raw")
+      echo "$target_dir" > "$config_file"
+    fi
+
+  else
+    echo "❌ No saved path."
+    read -rp "Enter new path: " raw
+    target_dir=$(resolve_to_git_root "$raw")
+    echo "$target_dir" > "$config_file"
+  fi
+
+  local target_git_root
+  target_git_root=$(git -C "$target_dir" rev-parse --show-toplevel 2>/dev/null)
+
+  local current_git_root
+  current_git_root=$(git -C "$PWD" rev-parse --show-toplevel 2>/dev/null)
+
+  if [[ -n "$current_git_root" && "$current_git_root" != "$target_git_root" ]]; then
+    echo ""
+    echo "⛔ You're inside a different git repo:"
+    echo "   Current: $current_git_root"
+    echo "   Saved:   $target_git_root"
+    echo "   Navigate out of this repo or update your saved path with: gpush /new/path"
+    return 1
+  fi
+
+  cd "$target_dir" || { echo "❌ Path not found: $target_dir"; return 1; }
+
+  echo ""
+  echo "📁 $(pwd)"
+  read -p "Commit message: " msg
+  if [[ -z "$msg" ]]; then
+    echo "❌ Commit message can't be empty."
+    return 1
+  fi
+
+  git add .
+  git commit -m "$msg"
+  git push
+}
+
+
+================================================================
+THE FINAL WINDOWS CMD VERSION
+================================================================
+
+@echo off
+setlocal enabledelayedexpansion
+
+set "CONFIG=%USERPROFILE%\.gpush_path"
+
+if not "%~1"=="" (
+    set "NEW_PATH=%~1"
+    for /f "delims=" %%i in ('git -C "!NEW_PATH!" rev-parse --show-toplevel 2^>nul') do set "NEW_PATH=%%i"
+    echo.
+    echo [?] New path: !NEW_PATH!
+    set /p "CONFIRM=Are you sure you want to use this path? (y/n): "
+    if /i "!CONFIRM!" neq "y" (
+        set /p "NEW_PATH=Enter new path: "
+        for /f "delims=" %%i in ('git -C "!NEW_PATH!" rev-parse --show-toplevel 2^>nul') do set "NEW_PATH=%%i"
+    )
+    echo !NEW_PATH!> "!CONFIG!"
+    set "TARGET_DIR=!NEW_PATH!"
+
+) else if exist "!CONFIG!" (
+    set /p "TARGET_DIR="< "!CONFIG!"
+    echo.
+    echo [~] Using saved path: !TARGET_DIR!
+    set /p "CONFIRM=Continue? (y/n): "
+    if /i "!CONFIRM!" neq "y" (
+        set /p "TARGET_DIR=Enter new path: "
+        for /f "delims=" %%i in ('git -C "!TARGET_DIR!" rev-parse --show-toplevel 2^>nul') do set "TARGET_DIR=%%i"
+        echo !TARGET_DIR!> "!CONFIG!"
+    )
+
+) else (
+    echo [x] No saved path.
+    set /p "TARGET_DIR=Enter new path: "
+    for /f "delims=" %%i in ('git -C "!TARGET_DIR!" rev-parse --show-toplevel 2^>nul') do set "TARGET_DIR=%%i"
+    echo !TARGET_DIR!> "!CONFIG!"
+)
+
+for /f "delims=" %%i in ('git -C "!TARGET_DIR!" rev-parse --show-toplevel 2^>nul') do set "TARGET_ROOT=%%i"
+for /f "delims=" %%i in ('git rev-parse --show-toplevel 2^>nul') do set "CURRENT_ROOT=%%i"
+
+if not "!CURRENT_ROOT!"=="" (
+    if /i "!CURRENT_ROOT!" neq "!TARGET_ROOT!" (
+        echo.
+        echo [BLOCKED] You're inside a different git repo:
+        echo    Current: !CURRENT_ROOT!
+        echo    Saved:   !TARGET_ROOT!
+        echo    Navigate out of this repo or run: gpush C:\your\new\path
+        exit /b 1
+    )
+)
+
+cd /d "!TARGET_DIR!" || (
+    echo [x] Path not found: !TARGET_DIR!
+    exit /b 1
+)
+
+echo.
+echo [+] %CD%
+set /p "MSG=Commit message: "
+
+if "!MSG!"=="" (
+    echo [x] Commit message can't be empty.
+    exit /b 1
+)
+
+git add .
+git commit -m "!MSG!"
+git push
+
+
+================================================================
+END OF HANDOFF
+================================================================

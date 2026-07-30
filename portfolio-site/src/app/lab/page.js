@@ -1,5 +1,5 @@
 import { concepts } from "./data/concepts";
-import ConceptCard from "./components/ConceptCard";
+import Card from "@/components/Card";
 
 export default function Lab() {
   return (
@@ -20,8 +20,14 @@ export default function Lab() {
 
         {/* CONCEPT CARDS */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {concepts.map((concept) => (
-            <ConceptCard key={concept.slug} concept={concept} />
+          {concepts.map((c) => (
+            <Card
+              key={c.slug}
+              href={`/lab/${c.slug}`}
+              title={c.title}
+              teaser={c.teaser}
+              isLive={c.status === "live"}
+            />
           ))}
         </div>
 
