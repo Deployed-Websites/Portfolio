@@ -1,0 +1,183 @@
+================================================================
+                    GPUSH.BAT DOCUMENTATION
+                    Windows Command Prompt Version
+================================================================
+
+WHAT GPUSH.BAT DOES
+--------------------
+gpush is a Windows batch command that:
+- Remembers a target git repo path so you never have to cd to it
+- Can be run from ANYWHERE in your file system including deep
+  inside any project directory structure
+- Auto resolves any path you give it to the git root of that repo
+- Checks you are not staging and committing from inside a
+  different git repo than the saved one — hard blocks if so
+- Prompts for a commit message then runs git add, commit, push
+- Found globally via system PATH so depth in any repo is irrelevant
+
+NOTE ON PATHS: Unlike the Git Bash version, no path formatting
+is needed here. Windows Command Prompt uses native Windows paths
+(C:\Users\...) so paste paths exactly as they are from
+right-click Copy Path in File Explorer.
+
+
+================================================================
+INSTALLING ON A NEW MACHINE
+================================================================
+
+1. Create a scripts folder if you don't have one:
+   C:\Users\khait\scripts\
+
+2. Save gpush.bat from the repo into that folder:
+   C:\Users\khait\scripts\gpush.bat
+
+3. Add the scripts folder to your system PATH:
+   a. Press Windows key, search "environment variables"
+   b. Click "Edit the system environment variables"
+   c. Click "Environment Variables" button
+   d. Under "User variables" find "Path" and click Edit
+   e. Click New and paste: C:\Users\khait\scripts
+   f. Click OK on all windows
+
+4. Open a NEW Command Prompt window (existing ones won't see it)
+
+5. Type gpush from anywhere to test
+
+
+================================================================
+GPUSH.BAT USAGE
+================================================================
+
+FIRST TIME (no saved path)
+---------------------------
+> gpush
+[x] No saved path.
+Enter new path: C:\Users\khait\Downloads\Portfolio\portfolio-site
+(resolves to git root, saves it, continues to commit)
+
+USING SAVED PATH
+----------------
+> gpush
+[~] Using saved path: C:\Users\khait\Downloads\Portfolio\portfolio-site
+Continue? (y/n): y
+[+] C:\Users\khait\Downloads\Portfolio\portfolio-site
+Commit message: your message here
+
+SAYING NO TO SAVED PATH (redirects to enter new one)
+-----------------------------------------------------
+> gpush
+[~] Using saved path: C:\Users\...
+Continue? (y/n): n
+Enter new path: C:\Users\khait\Downloads\OtherProject
+(saves new path and continues with push)
+
+PASSING A PATH DIRECTLY (overrides saved)
+-----------------------------------------
+> gpush C:\Users\khait\Downloads\Portfolio\portfolio-site
+[?] New path: C:/Users/khait/Downloads/Portfolio/portfolio-site
+Are you sure you want to use this path? (y/n): y
+(saves and continues)
+
+PASSING A DEEP SUBDIRECTORY PATH
+---------------------------------
+> gpush C:\Users\khait\Downloads\Portfolio\portfolio-site\src\app
+(auto resolves up to git root before saving or using)
+[?] New path: C:/Users/khait/Downloads/Portfolio/portfolio-site
+Are you sure you want to use this path? (y/n):
+
+WINDOWS PATH TIPS
+-----------------
+- Paste paths exactly as copied from right-click Copy Path
+- No quotes needed
+- No formatting needed, cmd uses native Windows paths
+- Backslashes are fine as-is
+
+
+================================================================
+GIT REPO SAFETY CHECK
+================================================================
+
+gpush.bat checks the git root of your current terminal location
+against the git root of the saved path.
+
+If they are DIFFERENT repos, gpush hard blocks:
+
+   [BLOCKED] You're inside a different git repo:
+      Current: C:/path/to/current/repo
+      Saved:   C:/path/to/saved/repo
+      Navigate out of this repo or run: gpush C:\your\new\path
+
+IMPORTANT BEHAVIOURS:
+- This is the ONLY point in the flow with no inline recovery
+- You must physically navigate out of the wrong repo and
+  run gpush again, or pass a new path explicitly
+- This is intentional — committing files from one repo into
+  another is catastrophic and requires conscious action to fix
+- Works at ANY depth inside a repo — whether you are at the
+  root or deep inside backend packages, Django apps, Next.js
+  route handlers etc. git rev-parse --show-toplevel walks up
+  the directory tree to find .git regardless of tech stack
+- Being deep in a repo does NOT affect gpush finding itself
+  since it lives on the system PATH not inside any repo
+
+
+================================================================
+WHY PATH IS GLOBALLY FOUND (system PATH explained)
+================================================================
+
+Because gpush.bat lives in a folder registered on your system
+PATH, Windows finds it like any built-in command (cd, git, etc.)
+no matter what directory your terminal is currently in.
+
+This means:
+- Deep in a Django project?     gpush works
+- Deep in a Next.js app?        gpush works
+- In a completely unrelated dir? gpush works
+- Just opened a terminal?        gpush works
+
+You never need to be in any specific place to run it.
+
+
+================================================================
+CLEARING THE SAVED PATH
+================================================================
+
+To delete the saved path entirely:
+   del %USERPROFILE%\.gpush_path
+
+Next gpush run will ask you for a new path from scratch.
+
+
+================================================================
+COMMITTING GPUSH.BAT TO YOUR REPO
+================================================================
+
+Keep gpush.bat saved in your portfolio repo for backup:
+
+   git add gpush.bat
+   git commit -m "add gpush batch script"
+   git push
+
+On a new machine just copy it from the repo into your scripts
+folder and you are set up immediately.
+
+
+================================================================
+DIFFERENCE FROM GIT BASH VERSION
+================================================================
+
+Git Bash version (gpush in ~/.bash_profile):
+- Requires path formatting (backslash to forward slash, C: to /c/)
+- format_path and resolve_to_git_root handle this automatically
+- Lives in ~/.bash_profile, loaded on every Git Bash terminal
+
+Windows CMD version (gpush.bat on system PATH):
+- No path formatting needed, native Windows paths work as-is
+- Lives in C:\Users\khait\scripts\ on system PATH
+- Available in Command Prompt, not Git Bash
+- Both versions share the same core logic and safety checks
+
+
+================================================================
+END OF DOCUMENTATION
+================================================================
