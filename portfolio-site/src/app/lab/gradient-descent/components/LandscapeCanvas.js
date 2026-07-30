@@ -3,15 +3,15 @@ import { useRef, useEffect } from "react";
 import { renderLandscape } from "../lib/renderLandscape";
 import { toWorld, CANVAS_SIZE } from "../lib/coords";
 
-export default function LandscapeCanvas({ ball, path, running, stepCount, onPlaceBall }) {
+export default function LandscapeCanvas({ ball, path, running, stepCount, sensingFrame, onPlaceBall }) {
   const canvasRef = useRef(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
-    renderLandscape(ctx, { ball, path });
-  }, [ball, path]);
+    renderLandscape(ctx, { ball, path, sensingFrame });
+  }, [ball, path, sensingFrame]);
 
   const handleClick = (e) => {
     if (running) return;
