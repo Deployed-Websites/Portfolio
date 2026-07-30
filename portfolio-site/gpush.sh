@@ -1,4 +1,3 @@
-
 gpush() {
   local config_file="$HOME/.gpush_path"
   local target_dir
@@ -10,6 +9,10 @@ gpush() {
   resolve_to_git_root() {
     local formatted
     formatted=$(printf '%s' "$1" | tr -d '"' | sed 's|\\|/|g' | sed 's|^\([A-Za-z]\):/|/\L\1/|')
+    # if it's a file, use its parent directory
+    if [[ -f "$formatted" ]]; then
+      formatted=$(dirname "$formatted")
+    fi
     local root
     root=$(git -C "$formatted" rev-parse --show-toplevel 2>/dev/null)
     if [[ -z "$root" ]]; then
